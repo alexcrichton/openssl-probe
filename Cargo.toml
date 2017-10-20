@@ -8,3 +8,4 @@ homepage = "https://github.com/alexcrichton/openssl-probe"
 description = """
 Tool for helping to find SSL certificate locations on the system for OpenSSL
 """
+readme = "README.md"
