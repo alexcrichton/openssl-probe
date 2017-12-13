@@ -11,7 +11,7 @@ First, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-openssl-probe = "0.1.1"
+openssl-probe = "0.1.2"
 ```
 
 Then add this to your crate:

@@ -22,6 +22,7 @@ pub fn find_certs_dirs() -> Vec<PathBuf> {
         "/usr/lib/ssl",
         "/usr/ssl",
         "/etc/openssl",
+        "/etc/pki/ca-trust/extracted/pem",
         "/etc/pki/tls",
         "/etc/ssl",
         "/data/data/com.termux/files/usr/etc/tls",
@@ -66,6 +67,7 @@ pub fn probe() -> ProbeResult {
             "certs/ca-root-nss.crt",
             "certs/ca-bundle.crt",
             "CARootCertificates.pem",
+            "tls-ca-bundle.pem",
         ].iter() {
             try(&mut result.cert_file, certs_dir.join(cert));
         }
