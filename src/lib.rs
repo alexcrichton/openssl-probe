@@ -2,6 +2,12 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 
+/// The OpenSSL environment variable to configure what certificate file to use.
+pub const ENV_CERT_FILE: &'static str = "SSL_CERT_FILE";
+
+/// The OpenSSL environment variable to configure what certificates directory to use.
+pub const ENV_CERT_DIR: &'static str = "SSL_CERT_DIR";
+
 pub struct ProbeResult {
     pub cert_file: Option<PathBuf>,
     pub cert_dir: Option<PathBuf>,
@@ -32,14 +38,22 @@ pub fn find_certs_dirs() -> Vec<PathBuf> {
     }).collect()
 }
 
-pub fn init_ssl_cert_env_vars() {
+/// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
+/// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
+///
+/// Preconfigured values in the environment variables will not be overwritten.
+///
+/// Returns `true` if any certificate file or directory was found while probing.
+/// Combine this with `has_ssl_cert_env_vars()` to check whether previously configured environment
+/// variables are valid.
+pub fn init_ssl_cert_env_vars() -> bool {
     let ProbeResult { cert_file, cert_dir } = probe();
     match cert_file {
-        Some(path) => put("SSL_CERT_FILE", path),
+        Some(path) => put(ENV_CERT_FILE, path),
         None => {}
     }
     match cert_dir {
-        Some(path) => put("SSL_CERT_DIR", path),
+        Some(path) => put(ENV_CERT_DIR, path),
         None => {}
     }
 
@@ -50,12 +64,30 @@ pub fn init_ssl_cert_env_vars() {
             Err(..) => env::set_var(var, &path),
         }
     }
+
+    cert_file.is_some() || cert_dir.is_some()
+}
+
+/// Check whether the OpenSSL `SSL_CERT_FILE` and/or `SSL_CERT_DIR` environment variable is
+/// configured in this process with an existing file or directory.
+///
+/// That being the case would indicate that certificates will be found successfully by OpenSSL.
+///
+/// Returns `true` if either variable is set to an existing file or directory.
+pub fn has_ssl_cert_env_vars() -> bool {
+    env::var(ENV_CERT_FILE)
+        .map(|file| fs::metadata(file).is_ok())
+        .unwrap_or(false)
+        ||
+    env::var(ENV_CERT_DIR)
+        .map(|dir| fs::metadata(dir).is_ok())
+        .unwrap_or(false)
 }
 
 pub fn probe() -> ProbeResult {
     let mut result = ProbeResult {
-        cert_file: env::var_os("SSL_CERT_FILE").map(PathBuf::from),
-        cert_dir: env::var_os("SSL_CERT_DIR").map(PathBuf::from),
+        cert_file: env::var_os(ENV_CERT_FILE).map(PathBuf::from),
+        cert_dir: env::var_os(ENV_CERT_DIR).map(PathBuf::from),
     };
     for certs_dir in find_certs_dirs().iter() {
         // cert.pem looks to be an openssl 1.0.1 thing, while
