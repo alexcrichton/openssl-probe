@@ -49,19 +49,19 @@ pub fn find_certs_dirs() -> Vec<PathBuf> {
 pub fn init_ssl_cert_env_vars() -> bool {
     let ProbeResult { cert_file, cert_dir } = probe();
     match &cert_file {
-        Some(path) => put(ENV_CERT_FILE, path.to_path_buf()),
+        Some(path) => put(ENV_CERT_FILE, path),
         None => {}
     }
     match &cert_dir {
-        Some(path) => put(ENV_CERT_DIR, path.to_path_buf()),
+        Some(path) => put(ENV_CERT_DIR, path),
         None => {}
     }
 
-    fn put(var: &str, path: PathBuf) {
+    fn put(var: &str, path: &PathBuf) {
         // Don't stomp over what anyone else has set
         match env::var(var) {
             Ok(..) => {}
-            Err(..) => env::set_var(var, &path),
+            Err(..) => env::set_var(var, path),
         }
     }
 
