@@ -95,6 +95,7 @@ pub fn probe() -> ProbeResult {
         for cert in [
             "cert.pem",
             "certs.pem",
+            "ca-bundle.pem",
             "certs/ca-certificates.crt",
             "certs/ca-root-nss.crt",
             "certs/ca-bundle.crt",
