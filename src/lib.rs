@@ -24,6 +24,7 @@ pub fn find_certs_dirs() -> Vec<PathBuf> {
         "/usr/share/ssl",
         "/usr/local/ssl",
         "/usr/local/openssl",
+        "/usr/local/etc/openssl",
         "/usr/local/share",
         "/usr/lib/ssl",
         "/usr/ssl",
