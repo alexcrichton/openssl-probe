@@ -43,11 +43,19 @@ pub fn find_certs_dirs() -> Vec<PathBuf> {
 /// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
 ///
 /// Preconfigured values in the environment variables will not be overwritten.
+pub fn init_ssl_cert_env_vars() {
+    try_init_ssl_cert_env_vars();
+}
+
+/// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
+/// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
+///
+/// Preconfigured values in the environment variables will not be overwritten.
 ///
 /// Returns `true` if any certificate file or directory was found while probing.
 /// Combine this with `has_ssl_cert_env_vars()` to check whether previously configured environment
 /// variables are valid.
-pub fn init_ssl_cert_env_vars() -> bool {
+pub fn try_init_ssl_cert_env_vars() -> bool {
     let ProbeResult { cert_file, cert_dir } = probe();
     match &cert_file {
         Some(path) => put(ENV_CERT_FILE, path),
