@@ -45,7 +45,8 @@ fn cert_dirs_iter() -> impl Iterator<Item = &'static Path> {
 /// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
 /// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
 ///
-/// Preconfigured values in the environment variables will not be overwritten.
+/// Preconfigured values in the environment variables will not be overwritten if the paths they
+/// point to exist and are accessible.
 pub fn init_ssl_cert_env_vars() {
     try_init_ssl_cert_env_vars();
 }
@@ -53,25 +54,21 @@ pub fn init_ssl_cert_env_vars() {
 /// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
 /// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
 ///
-/// Preconfigured values in the environment variables will not be overwritten.
+/// Preconfigured values in the environment variables will not be overwritten if the paths they
+/// point to exist and are accessible.
 ///
 /// Returns `true` if any certificate file or directory was found while probing.
 /// Combine this with `has_ssl_cert_env_vars()` to check whether previously configured environment
 /// variables are valid.
 pub fn try_init_ssl_cert_env_vars() -> bool {
     let ProbeResult { cert_file, cert_dir } = probe();
+    // we won't be overwriting existing env variables because if they're valid probe() will have
+    // returned them unchanged
     if let Some(path) = &cert_file {
-        put(ENV_CERT_FILE, path);
+        env::set_var(ENV_CERT_FILE, path);
     }
     if let Some(path) = &cert_dir {
-        put(ENV_CERT_DIR, path);
-    }
-
-    fn put(var: &str, path: &Path) {
-        // Don't stomp over what anyone else has set
-        if env::var_os(var).is_none() {
-            env::set_var(var, path);
-        }
+        env::set_var(ENV_CERT_DIR, path);
     }
 
     cert_file.is_some() || cert_dir.is_some()
@@ -84,18 +81,24 @@ pub fn try_init_ssl_cert_env_vars() -> bool {
 ///
 /// Returns `true` if either variable is set to an existing file or directory.
 pub fn has_ssl_cert_env_vars() -> bool {
-    let check_var = |name| {
+    let probe = probe_from_env();
+    probe.cert_file.is_some() || probe.cert_dir.is_some()
+}
+
+fn probe_from_env() -> ProbeResult {
+    let var = |name| {
         env::var_os(name)
-            .map_or(false, |file| PathBuf::from(file).exists())
+            .map(PathBuf::from)
+            .filter(|p| p.exists())
     };
-    check_var(ENV_CERT_FILE) || check_var(ENV_CERT_DIR)
+    ProbeResult {
+        cert_file: var(ENV_CERT_FILE),
+        cert_dir: var(ENV_CERT_DIR),
+    }
 }
 
 pub fn probe() -> ProbeResult {
-    let mut result = ProbeResult {
-        cert_file: env::var_os(ENV_CERT_FILE).map(PathBuf::from),
-        cert_dir: env::var_os(ENV_CERT_DIR).map(PathBuf::from),
-    };
+    let mut result = probe_from_env();
     for certs_dir in cert_dirs_iter() {
         // cert.pem looks to be an openssl 1.0.1 thing, while
         // certs/ca-certificates.crt appears to be a 0.9.8 thing
