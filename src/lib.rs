@@ -36,6 +36,7 @@ fn cert_dirs_iter() -> impl Iterator<Item = &'static Path> {
         "/etc/pki/ca-trust/extracted/pem",
         "/etc/pki/tls",
         "/etc/ssl",
+        "/etc/certs",
         "/opt/etc/ssl", // Entware
         "/data/data/com.termux/files/usr/etc/tls",
         "/boot/system/data/ssl",
@@ -107,6 +108,8 @@ pub fn probe() -> ProbeResult {
             "cert.pem",
             "certs.pem",
             "ca-bundle.pem",
+            "cacert.pem",
+            "ca-certificates.crt",
             "certs/ca-certificates.crt",
             "certs/ca-root-nss.crt",
             "certs/ca-bundle.crt",
