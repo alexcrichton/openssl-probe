@@ -38,6 +38,7 @@ fn cert_dirs_iter() -> impl Iterator<Item = &'static Path> {
         "/etc/ssl",
         "/etc/certs",
         "/opt/etc/ssl", // Entware
+        #[cfg(target_os = "android")]
         "/data/data/com.termux/files/usr/etc/tls",
         #[cfg(target_os = "haiku")]
         "/boot/system/data/ssl",
