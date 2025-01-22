@@ -39,6 +39,7 @@ fn cert_dirs_iter() -> impl Iterator<Item = &'static Path> {
         "/etc/certs",
         "/opt/etc/ssl", // Entware
         "/data/data/com.termux/files/usr/etc/tls",
+        #[cfg(target_os = "haiku")]
         "/boot/system/data/ssl",
     ]
     .iter().map(Path::new).filter(|p| p.exists())
