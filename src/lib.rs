@@ -67,10 +67,19 @@ pub fn try_init_ssl_cert_env_vars() -> bool {
     // we won't be overwriting existing env variables because if they're valid probe() will have
     // returned them unchanged
     if let Some(path) = &cert_file {
-        env::set_var(ENV_CERT_FILE, path);
+        put(ENV_CERT_FILE, path);
     }
     if let Some(path) = &cert_dir {
-        env::set_var(ENV_CERT_DIR, path);
+        put(ENV_CERT_DIR, path);
+    }
+
+    fn put(var: &str, path: &Path) {
+        // Avoid calling `setenv` if the variable already has the same contents. This avoids a
+        // crash when called from out of perl <5.38 (Debian Bookworm is at 5.36), as old versions
+        // of perl tend to manipulate the `environ` pointer directly.
+        if env::var_os(var).as_deref() != Some(path.as_os_str()) {
+            env::set_var(var, path);
+        }
     }
 
     cert_file.is_some() || cert_dir.is_some()
