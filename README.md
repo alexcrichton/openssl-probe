@@ -11,17 +11,20 @@ First, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-openssl-probe = "0.1.2"
+openssl-probe = "0.1.6"
 ```
 
 Then add this to your crate:
 
 ```rust
-extern crate openssl_probe;
-
 fn main() {
-    openssl_probe::init_ssl_cert_env_vars();
-    //... your code
+    let result = openssl_probe::probe();
+    if let Some(dir) = &result.cert_dir {
+        //... your code
+    }
+    if let Some(file) = &result.cert_file {
+        //... your code
+    }
 }
 ```
 
