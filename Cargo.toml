@@ -9,3 +9,8 @@ description = """
 Tool for helping to find SSL certificate locations on the system for OpenSSL
 """
 readme = "README.md"
+edition = '2021'
+
+# This was arbitrarily chosen on 2025-01-23 as "pretty old" as previously
+# key didn't exist in `Cargo.toml` prior to that.
+rust-version = '1.60.0'
