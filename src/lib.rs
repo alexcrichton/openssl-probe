@@ -48,11 +48,8 @@ fn cert_dirs_iter() -> impl Iterator<Item = &'static Path> {
     .filter(|p| p.exists())
 }
 
-/// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
-/// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
-///
-/// Preconfigured values in the environment variables will not be overwritten if the paths they
-/// point to exist and are accessible.
+/// Deprecated as this isn't sound, use [`init_openssl_env_vars`] instead.
+#[doc(hidden)]
 #[deprecated(note = "this function is not safe, use `init_openssl_env_vars` instead")]
 pub fn init_ssl_cert_env_vars() {
     unsafe {
@@ -80,15 +77,8 @@ pub unsafe fn init_openssl_env_vars() {
     try_init_openssl_env_vars();
 }
 
-/// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
-/// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
-///
-/// Preconfigured values in the environment variables will not be overwritten if the paths they
-/// point to exist and are accessible.
-///
-/// Returns `true` if any certificate file or directory was found while probing.
-/// Combine this with `has_ssl_cert_env_vars()` to check whether previously configured environment
-/// variables are valid.
+/// Deprecated as this isn't sound, use [`try_init_openssl_env_vars`] instead.
+#[doc(hidden)]
 #[deprecated(note = "use try_init_openssl_env_vars instead, this function is not safe")]
 pub fn try_init_ssl_cert_env_vars() -> bool {
     unsafe { try_init_openssl_env_vars() }
