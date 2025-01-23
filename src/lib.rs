@@ -16,12 +16,17 @@ pub struct ProbeResult {
 /// found.
 ///
 /// This will only search known system locations.
+#[doc(hidden)]
+#[deprecated(note = "use `candidate_cert_dirs` instead")]
 pub fn find_certs_dirs() -> Vec<PathBuf> {
-    cert_dirs_iter().map(Path::to_path_buf).collect()
+    candidate_cert_dirs().map(Path::to_path_buf).collect()
 }
 
-// TODO: when we bump to 0.2, make this the `find_certs_dirs` function
-fn cert_dirs_iter() -> impl Iterator<Item = &'static Path> {
+/// Probe the system for the directory in which CA certificates should likely be
+/// found.
+///
+/// This will only search known system locations.
+pub fn candidate_cert_dirs() -> impl Iterator<Item = &'static Path> {
     // see http://gagravarr.org/writing/openssl-certs/others.shtml
     [
         "/var/ssl",
@@ -161,7 +166,7 @@ fn probe_from_env() -> ProbeResult {
 /// The probe result is returned as a [`ProbeResult`] structure here.
 pub fn probe() -> ProbeResult {
     let mut result = probe_from_env();
-    for certs_dir in cert_dirs_iter() {
+    for certs_dir in candidate_cert_dirs() {
         // cert.pem looks to be an openssl 1.0.1 thing, while
         // certs/ca-certificates.crt appears to be a 0.9.8 thing
         let cert_filenames = [
