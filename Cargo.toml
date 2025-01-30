@@ -1,7 +1,7 @@
 [package]
 name = "openssl-probe"
-version = "0.1.6"
-authors = ["Alex Crichton <alex@alexcrichton.com>"]
+version = "0.2.0"
+authors = ["Alex Crichton <alex@alexcrichton.com>", "Matt Mastracci <matthew@mastracci.com>"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/alexcrichton/openssl-probe"
 homepage = "https://github.com/alexcrichton/openssl-probe"
@@ -14,3 +14,13 @@ edition = '2021'
 # This was arbitrarily chosen on 2025-01-23 as "pretty old" as previously
 # key didn't exist in `Cargo.toml` prior to that.
 rust-version = '1.60.0'
+
+[features]
+# WARNING: Features behind this flag are likely not sound unless 1) you are
+# performing these actions at the start of your main function, or 2) you are
+# absolutely certain no non-Rust threads are active. Enabling this feature
+# may result in difficult-to-diagnose crashes.
+allow-unsafe-set-env = []
+
+[package.metadata.docs.rs]
+all-features = true
