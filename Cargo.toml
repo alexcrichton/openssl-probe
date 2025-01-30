@@ -18,8 +18,9 @@ rust-version = '1.60.0'
 [features]
 # WARNING: Features behind this flag are likely not sound unless 1) you are
 # performing these actions at the start of your main function, or 2) you are
-# absolutely certain no non-Rust threads are active. Enabling this feature
-# may result in difficult-to-diagnose crashes.
+# otherwise absolutely certain that you are running in a single-threaded
+# environment. Enabling this feature may result in difficult-to-diagnose crashes
+# in code running in other crates.
 allow-unsafe-set-env = []
 
 [package.metadata.docs.rs]

@@ -44,6 +44,11 @@ pub fn candidate_cert_dirs() -> impl Iterator<Item = &'static Path> {
 }
 
 #[cfg(feature = "allow-unsafe-set-env")]
+/// WARNING: This method is likely not safe to use, unless 1) you are
+/// performing these actions at the start of your main function, or 2) you are
+/// otherwise absolutely certain that you are running in a single-threaded
+/// environment.
+/// 
 /// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
 /// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
 ///
@@ -65,6 +70,11 @@ pub unsafe fn init_openssl_env_vars() {
 }
 
 #[cfg(feature = "allow-unsafe-set-env")]
+/// WARNING: This method is likely not safe to use, unless 1) you are
+/// performing these actions at the start of your main function, or 2) you are
+/// otherwise absolutely certain that you are running in a single-threaded
+/// environment.
+/// 
 /// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
 /// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
 ///
