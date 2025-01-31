@@ -43,12 +43,6 @@ pub fn candidate_cert_dirs() -> impl Iterator<Item = &'static Path> {
     .filter(|p| p.exists())
 }
 
-#[cfg(feature = "allow-unsafe-set-env")]
-/// WARNING: This method is likely not safe to use, unless 1) you are
-/// performing these actions at the start of your main function, or 2) you are
-/// otherwise absolutely certain that you are running in a single-threaded
-/// environment.
-/// 
 /// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
 /// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
 ///
@@ -56,6 +50,12 @@ pub fn candidate_cert_dirs() -> impl Iterator<Item = &'static Path> {
 /// point to exist and are accessible.
 ///
 /// # Safety
+///
+/// <div class="danger">Use of this method in multi-threaded
+/// environments is unsound. You should not use it unless 1) you
+/// are performing these actions at the start of your main function, or 2) you
+/// are otherwise absolutely certain that you are running in a single-threaded
+/// environment.</div>
 ///
 /// This function is not safe because it mutates the process's environment
 /// variables which is generally not safe. See the [documentation in libstd][doc]
@@ -65,36 +65,40 @@ pub fn candidate_cert_dirs() -> impl Iterator<Item = &'static Path> {
 /// methods instead of relying on environment variables.
 ///
 /// [doc]: https://doc.rust-lang.org/stable/std/env/fn.set_var.html#safety
+#[cfg(feature = "allow-unsafe-set-env")]
 pub unsafe fn init_openssl_env_vars() {
     try_init_openssl_env_vars();
 }
 
-#[cfg(feature = "allow-unsafe-set-env")]
-/// WARNING: This method is likely not safe to use, unless 1) you are
-/// performing these actions at the start of your main function, or 2) you are
-/// otherwise absolutely certain that you are running in a single-threaded
-/// environment.
-/// 
-/// Probe for SSL certificates on the system, then configure the SSL certificate `SSL_CERT_FILE`
-/// and `SSL_CERT_DIR` environment variables in this process for OpenSSL to use.
+/// Probe for SSL certificates on the system, then configure the SSL certificate
+/// `SSL_CERT_FILE` and `SSL_CERT_DIR` environment variables in this process for
+/// OpenSSL to use.
 ///
-/// Preconfigured values in the environment variables will not be overwritten if the paths they
-/// point to exist and are accessible.
+/// Preconfigured values in the environment variables will not be overwritten if
+/// the paths they point to exist and are accessible.
 ///
 /// Returns `true` if any certificate file or directory was found while probing.
-/// Combine this with `has_ssl_cert_env_vars()` to check whether previously configured environment
-/// variables are valid.
+/// Combine this with `has_ssl_cert_env_vars()` to check whether previously
+/// configured environment variables are valid.
 ///
 /// # Safety
 ///
+/// <div class="danger">Use of this method in multi-threaded
+/// environments is unsound. You should not use it unless 1) you
+/// are performing these actions at the start of your main function, or 2) you
+/// are otherwise absolutely certain that you are running in a single-threaded
+/// environment.</div>
+/// 
 /// This function is not safe because it mutates the process's environment
-/// variables which is generally not safe. See the [documentation in libstd][doc]
-/// for information about why setting environment variables is not safe.
+/// variables which is generally not safe. See the [documentation in
+/// libstd][doc] for information about why setting environment variables is not
+/// safe.
 ///
 /// If possible use the [`probe`] function and directly configure OpenSSL
 /// methods instead of relying on environment variables.
 ///
 /// [doc]: https://doc.rust-lang.org/stable/std/env/fn.set_var.html#safety
+#[cfg(feature = "allow-unsafe-set-env")]
 pub unsafe fn try_init_openssl_env_vars() -> bool {
     let ProbeResult {
         cert_file,
